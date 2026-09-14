@@ -1,0 +1,7 @@
+# Khoá và thông tin mạng cục bộ - không bao giờ commit
+secrets.h
+
+# Build artifacts của Arduino IDE
+build/
+*.bin
+*.elf

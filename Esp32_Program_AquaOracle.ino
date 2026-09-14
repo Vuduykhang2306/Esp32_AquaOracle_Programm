@@ -19,14 +19,13 @@
 // ============================================================================
 // CẤU HÌNH WIFI
 // ============================================================================
-const char* WIFI_SSID = "YOUR_WIFI_SSID";
-const char* WIFI_PASSWORD = "YOUR_WIFI_PASSWORD";
+// Khai báo trong secrets.h (đã gitignore). Xem secrets.example.h.
+#include "secrets.h"
 
 // ============================================================================
 // CẤU HÌNH SUPABASE
 // ============================================================================
-const char* SUPABASE_URL = "https://YOUR_PROJECT_REF.supabase.co/rest/v1/water_quality";
-const char* SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+// SUPABASE_URL va SUPABASE_ANON_KEY cung nam trong secrets.h.
 const char* ESP_ID = "esp01";
 
 // ============================================================================
