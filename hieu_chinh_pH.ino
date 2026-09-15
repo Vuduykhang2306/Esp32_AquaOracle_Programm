@@ -53,7 +53,7 @@ void calibratePH() {
   if (abs(acidSlope) < 2.0 || abs(acidSlope) > 4.5) {
     Serial.println("Cảnh báo: Độ dốc bất thường!");
     Serial.println("Giá trị chuẩn: -3.0 đến -3.5 pH/V");
-    Serial.println("→ Kiểm tra lại hiệu chỉnh");
+    Serial.println("-> Kiểm tra lại hiệu chỉnh");
   } else {
     Serial.println("Hiệu chỉnh hợp lệ!");
   }
@@ -120,8 +120,8 @@ void manualCalibrationMode() {
     delay(1000);
   }
   
-  Serial.println("\n→ Ghi lại giá trị điện áp trung bình");
-  Serial.println("→ Cập nhật vào VOLTAGE_PH7 hoặc VOLTAGE_PH4\n");
+  Serial.println("\n-> Ghi lại giá trị điện áp trung bình");
+  Serial.println("-> Cập nhật vào VOLTAGE_PH7 hoặc VOLTAGE_PH4\n");
 }
 
 // Thay hàm readPH() cũ bằng hàm mới
@@ -169,8 +169,8 @@ void manualCalibrationMode() {
  * 
  * KIỂM TRA SAI SỐ:
  * - Sai số cho phép: ±0.1 pH @ 25°C (theo datasheet)
- * - Nếu sai số > ±0.2 pH → cần hiệu chỉnh lại
- * - Nếu vẫn sai → kiểm tra probe (có thể hỏng)
+ * - Nếu sai số > ±0.2 pH -> cần hiệu chỉnh lại
+ * - Nếu vẫn sai -> kiểm tra probe (có thể hỏng)
  * 
  * ============================================================================
  */

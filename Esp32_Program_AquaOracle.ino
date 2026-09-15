@@ -24,24 +24,24 @@
 const char* ESP_ID = "esp01";
 
 // Chân cảm biến, theo sơ đồ board Beark
-// ESP32 → Cảm biến (đọc dữ liệu)
-#define PIN_TEMP 32              // GPIO32 → DS18B20 nhiệt độ (OneWire)
-#define PIN_PH 34                // GPIO34 → cảm biến pH (analog)
-#define PIN_TURBIDITY 33         // GPIO33 → cảm biến độ đục (analog)
-#define PIN_TDS 35               // GPIO35 → cảm biến TDS (analog)
+// ESP32 -> Cảm biến (đọc dữ liệu)
+#define PIN_TEMP 32              // GPIO32 -> DS18B20 nhiệt độ (OneWire)
+#define PIN_PH 34                // GPIO34 -> cảm biến pH (analog)
+#define PIN_TURBIDITY 33         // GPIO33 -> cảm biến độ đục (analog)
+#define PIN_TDS 35               // GPIO35 -> cảm biến TDS (analog)
 
-// ESP32 → Relay 4 kênh (điều khiển nguồn cảm biến qua Beark Board)
-#define RELAY_1 17               // GPIO17 → Relay 1 (IN1)
-#define RELAY_2 16               // GPIO16 → Relay 2 (IN2)
-#define RELAY_3 0                // GPIO0  → Relay 3 (IN3)
-#define RELAY_4 15               // GPIO15 → Relay 4 (IN4)
+// ESP32 -> Relay 4 kênh (điều khiển nguồn cảm biến qua Beark Board)
+#define RELAY_1 17               // GPIO17 -> Relay 1 (IN1)
+#define RELAY_2 16               // GPIO16 -> Relay 2 (IN2)
+#define RELAY_3 0                // GPIO0  -> Relay 3 (IN3)
+#define RELAY_4 15               // GPIO15 -> Relay 4 (IN4)
 
 // Relay nào cấp nguồn cho cảm biến nào
 // Từ sơ đồ, các relay kết nối VCC cảm biến qua Beark Board:
-#define RELAY_TEMP       RELAY_1    // Relay 1 → VCC CB Nhiệt độ
-#define RELAY_PH         RELAY_2    // Relay 2 → VCC CB pH
-#define RELAY_TDS        RELAY_3    // Relay 3 → VCC CB TDS
-#define RELAY_TURBIDITY  RELAY_4    // Relay 4 → VCC CB Turbidity
+#define RELAY_TEMP       RELAY_1    // Relay 1 -> VCC CB Nhiệt độ
+#define RELAY_PH         RELAY_2    // Relay 2 -> VCC CB pH
+#define RELAY_TDS        RELAY_3    // Relay 3 -> VCC CB TDS
+#define RELAY_TURBIDITY  RELAY_4    // Relay 4 -> VCC CB Turbidity
 
 // Thiết lập DS18B20
 OneWire oneWire(PIN_TEMP);
@@ -68,16 +68,16 @@ void setup() {
   Serial.println("DS18B20 + Relay Power Management");
   
   Serial.println("\nCẤU HÌNH CHÂN:");
-  Serial.println("CẢM BIẾN → ESP32");
-  Serial.printf("CB Nhiệt độ → GPIO%d (DS18B20)\n", PIN_TEMP);
-  Serial.printf("CB pH → GPIO%d (Analog)\n", PIN_PH);
-  Serial.printf("CB TDS → GPIO%d (Analog)\n", PIN_TDS);
-  Serial.printf("CB Turbidity → GPIO%d (Analog)\n", PIN_TURBIDITY);
-  Serial.println("RELAY → ESP32");
-  Serial.printf("Relay 1 (Nhiệt độ) → GPIO%d\n", RELAY_1);
-  Serial.printf("Relay 2 (pH) → GPIO%d\n", RELAY_2);
-  Serial.printf("Relay 3 (TDS) → GPIO%d\n", RELAY_3);
-  Serial.printf("Relay 4 (Turbidity)→ GPIO%d\n", RELAY_4);
+  Serial.println("CẢM BIẾN -> ESP32");
+  Serial.printf("CB Nhiệt độ -> GPIO%d (DS18B20)\n", PIN_TEMP);
+  Serial.printf("CB pH -> GPIO%d (Analog)\n", PIN_PH);
+  Serial.printf("CB TDS -> GPIO%d (Analog)\n", PIN_TDS);
+  Serial.printf("CB Turbidity -> GPIO%d (Analog)\n", PIN_TURBIDITY);
+  Serial.println("RELAY -> ESP32");
+  Serial.printf("Relay 1 (Nhiệt độ) -> GPIO%d\n", RELAY_1);
+  Serial.printf("Relay 2 (pH) -> GPIO%d\n", RELAY_2);
+  Serial.printf("Relay 3 (TDS) -> GPIO%d\n", RELAY_3);
+  Serial.printf("Relay 4 (Turbidity)-> GPIO%d\n", RELAY_4);
   
   // Khởi tạo GPIO
   initGPIO();
