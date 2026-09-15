@@ -1,29 +1,21 @@
 /*
- * ============================================================================
- * HIỆU CHỈNH CẢM BIẾN pH - DFRobot SEN0161-V2
- * ============================================================================
- * HƯỚNG DẪN HIỆU CHỈNH 2 ĐIỂM (TWO-POINT CALIBRATION):
- * 
- * BƯỚC 1: Ngâm pH probe vào dung dịch pH 7.0
- *   - Đợi 2 phút cho ổn định
- *   - Ghi lại điện áp hiển thị trong Serial Monitor → gán vào VOLTAGE_PH7
- * 
- * BƯỚC 2: Rửa probe bằng nước cất, lau khô
- * 
- * BƯỚC 3: Ngâm pH probe vào dung dịch pH 4.0
- *   - Đợi 2 phút cho ổn định  
- *   - Ghi lại điện áp hiển thị → gán vào VOLTAGE_PH4
- * 
- * BƯỚC 4: Cập nhật code với 2 giá trị điện áp vừa đo
- * ============================================================================
+ * Hiệu chỉnh cảm biến pH DFRobot SEN0161-V2, hiệu chỉnh hai điểm.
+ *
+ * Cách làm:
+ *   1. Ngâm probe vào dung dịch chuẩn pH 7.0, đợi khoảng 2 phút cho số ổn
+ *      định, đọc điện áp trên Serial rồi điền vào VOLTAGE_PH7.
+ *   2. Rửa probe bằng nước cất, lau khô.
+ *   3. Làm lại với dung dịch pH 4.0, điền vào VOLTAGE_PH4.
+ *   4. Nạp lại chương trình chính với hai giá trị vừa đo.
+ *
+ * Hai giá trị mặc định bên dưới chỉ là số tạm, phải đo lại trên đúng probe
+ * đang dùng thì kết quả mới đúng.
  */
 
-// ============================================================================
-// THÔNG SỐ HIỆU CHỈNH - CẬP NHẬT SAU KHI ĐO
-// ============================================================================
-// ⚠️ BẠN CẦN THAY THẾ CÁC GIÁ TRỊ NÀY SAU KHI HIỆU CHỈNH
-float VOLTAGE_PH7 = 1.50;  // Điện áp đo được tại pH 7.0 (V) - PHẢI ĐO THỰC TẾ!
-float VOLTAGE_PH4 = 2.03;  // Điện áp đo được tại pH 4.0 (V) - PHẢI ĐO THỰC TẾ!
+// Thông số hiệu chỉnh, cập nhật sau khi đo
+// Hai số này phải đo lại trên probe thật, để nguyên là sai.
+float VOLTAGE_PH7 = 1.50;  // V đo tại pH 7.0
+float VOLTAGE_PH4 = 2.03;  // V đo tại pH 4.0
 
 // Thông số chuẩn từ datasheet
 const float PH_REFERENCE_7 = 7.0;
@@ -35,19 +27,15 @@ const float ADC_VREF = 3.3;           // Điện áp tham chiếu ESP32
 float acidSlope = 0.0;    // Độ dốc đường chuẩn
 float neutralVoltage = 0.0; // Điện áp tại pH trung tính
 
-// ============================================================================
-// CHỨC NĂNG HIỆU CHỈNH - GỌI 1 LẦN TRONG SETUP()
-// ============================================================================
+// Tính hệ số hiệu chỉnh, gọi một lần trong setup()
 void calibratePH() {
-  Serial.println("\n╔════════════════════════════════════════════╗");
-  Serial.println("║   HIỆU CHỈNH CẢM BIẾN pH SEN0161-V2       ║");
-  Serial.println("╚════════════════════════════════════════════╝");
+  Serial.println("HIỆU CHỈNH CẢM BIẾN pH SEN0161-V2");
   
   // Kiểm tra xem đã hiệu chỉnh chưa
   if (VOLTAGE_PH7 == 1.50 && VOLTAGE_PH4 == 2.03) {
-    Serial.println("⚠️  CẢNH BÁO: Đang dùng giá trị mặc định!");
-    Serial.println("    Bạn cần hiệu chỉnh bằng dung dịch chuẩn");
-    Serial.println("    pH 4.0 và pH 7.0 để có độ chính xác cao");
+    Serial.println("CẢNH BÁO: Đang dùng giá trị mặc định!");
+    Serial.println("Bạn cần hiệu chỉnh bằng dung dịch chuẩn");
+    Serial.println("pH 4.0 và pH 7.0 để có độ chính xác cao");
     Serial.println();
   }
   
@@ -55,28 +43,24 @@ void calibratePH() {
   acidSlope = (PH_REFERENCE_7 - PH_REFERENCE_4) / (VOLTAGE_PH7 - VOLTAGE_PH4);
   neutralVoltage = VOLTAGE_PH7;
   
-  Serial.println("📊 THÔNG SỐ HIỆU CHỈNH:");
-  Serial.println("┌─────────────────────────────────────────┐");
-  Serial.printf("│ Điện áp tại pH 7.0: %.3f V            │\n", VOLTAGE_PH7);
-  Serial.printf("│ Điện áp tại pH 4.0: %.3f V            │\n", VOLTAGE_PH4);
-  Serial.printf("│ Độ dốc (Slope):     %.3f pH/V         │\n", acidSlope);
-  Serial.printf("│ Điện áp trung tính: %.3f V            │\n", neutralVoltage);
-  Serial.println("└─────────────────────────────────────────┘");
+  Serial.println("THÔNG SỐ HIỆU CHỈNH:");
+  Serial.printf("Điện áp tại pH 7.0: %.3f V \n", VOLTAGE_PH7);
+  Serial.printf("Điện áp tại pH 4.0: %.3f V \n", VOLTAGE_PH4);
+  Serial.printf("Độ dốc (Slope): %.3f pH/V \n", acidSlope);
+  Serial.printf("Điện áp trung tính: %.3f V \n", neutralVoltage);
   
   // Kiểm tra tính hợp lệ
   if (abs(acidSlope) < 2.0 || abs(acidSlope) > 4.5) {
-    Serial.println("⚠️  Cảnh báo: Độ dốc bất thường!");
-    Serial.println("    Giá trị chuẩn: -3.0 đến -3.5 pH/V");
-    Serial.println("    → Kiểm tra lại hiệu chỉnh");
+    Serial.println("Cảnh báo: Độ dốc bất thường!");
+    Serial.println("Giá trị chuẩn: -3.0 đến -3.5 pH/V");
+    Serial.println("→ Kiểm tra lại hiệu chỉnh");
   } else {
-    Serial.println("✓ Hiệu chỉnh hợp lệ!");
+    Serial.println("Hiệu chỉnh hợp lệ!");
   }
   Serial.println();
 }
 
-// ============================================================================
-// ĐỌC pH VỚI HIỆU CHỈNH VÀ BÙ NHIỆT ĐỘ
-// ============================================================================
+// Đọc pH, có hiệu chỉnh và bù nhiệt độ
 float readPH_Calibrated(float temperature = 25.0) {
   // Đọc ADC (trung bình 10 mẫu)
   int adcSum = 0;
@@ -100,31 +84,26 @@ float readPH_Calibrated(float temperature = 25.0) {
   phValue = constrain(phValue, 0.0, 14.0);
   
   // Hiển thị chi tiết
-  Serial.printf("   ├─ ADC Raw: %.0f / 4095\n", adcValue);
-  Serial.printf("   ├─ Voltage: %.3f V\n", voltage);
-  Serial.printf("   ├─ pH (uncalibrated): %.2f\n", 
+  Serial.printf("ADC Raw: %.0f / 4095\n", adcValue);
+  Serial.printf("Voltage: %.3f V\n", voltage);
+  Serial.printf("pH (uncalibrated): %.2f\n", 
                 PH_REFERENCE_7 + acidSlope * (voltage - neutralVoltage));
-  Serial.printf("   ├─ Temperature: %.1f °C\n", temperature);
-  Serial.printf("   ├─ Temp compensation: %.3f pH\n", tempCompensation);
-  Serial.printf("   └─ ✓ pH (calibrated): %.2f\n", phValue);
+  Serial.printf("Temperature: %.1f °C\n", temperature);
+  Serial.printf("Temp compensation: %.3f pH\n", tempCompensation);
+  Serial.printf("pH (calibrated): %.2f\n", phValue);
   
   return phValue;
 }
 
-// ============================================================================
-// CHẾ ĐỘ HIỆU CHỈNH THỦ CÔNG (GỌI TRONG LOOP ĐỂ KIỂM TRA)
-// ============================================================================
+// Chế độ đo tay để dò điện áp, gọi trong loop() khi cần hiệu chỉnh
 void manualCalibrationMode() {
-  Serial.println("\n═══════════════════════════════════════");
-  Serial.println("  CHẾ ĐỘ HIỆU CHỈNH pH MANUAL");
-  Serial.println("═══════════════════════════════════════");
+  Serial.println("CHẾ ĐỘ HIỆU CHỈNH pH MANUAL");
   Serial.println("Hướng dẫn:");
   Serial.println("1. Ngâm probe vào dung dịch pH 7.0");
   Serial.println("2. Đợi 2 phút, ghi lại điện áp");
   Serial.println("3. Rửa probe, ngâm vào pH 4.0");
   Serial.println("4. Đợi 2 phút, ghi lại điện áp");
   Serial.println("5. Cập nhật VOLTAGE_PH7 và VOLTAGE_PH4");
-  Serial.println("═══════════════════════════════════════\n");
   
   for (int i = 0; i < 20; i++) {  // Đọc 20 lần
     // Đọc ADC
@@ -145,9 +124,7 @@ void manualCalibrationMode() {
   Serial.println("→ Cập nhật vào VOLTAGE_PH7 hoặc VOLTAGE_PH4\n");
 }
 
-// ============================================================================
-// THAY THẾ HÀM readPH() CŨ BẰNG HÀM MỚI
-// ============================================================================
+// Thay hàm readPH() cũ bằng hàm mới
 // TRONG SETUP(), THÊM DÒNG:
 // calibratePH();
 
