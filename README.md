@@ -22,7 +22,8 @@ PVC.
 ## Cách hoạt động
 
 1. Khi khởi động: khởi tạo 4 cảm biến và kết nối Wi-Fi.
-2. Khoảng 5 phút một lần: đọc analog nhiều lần rồi lấy trung bình để lọc nhiễu.
+2. Cứ 2 phút một lần (`SEND_INTERVAL`): đọc analog nhiều lần rồi lấy trung bình
+   để lọc nhiễu.
 3. So với ngưỡng an toàn, nếu vượt thì bật cảnh báo.
 4. Đóng gói thành JSON, POST lên Supabase REST API qua HTTPS và kiểm tra xem
    gửi có thành công không.
