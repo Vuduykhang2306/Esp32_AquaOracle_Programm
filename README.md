@@ -1,7 +1,7 @@
-# AquaOracle — firmware ESP32
+# AquaOracle: firmware ESP32
 
 Firmware cho node cảm biến của hệ thống AquaOracle: đo chất lượng nước ao nuôi
-thuỷ sản và đẩy dữ liệu lên Supabase.
+thuỷ sản rồi đẩy dữ liệu lên Supabase.
 
 Ứng dụng di động đọc dữ liệu này: [aquaoracle-app](https://github.com/Vuduykhang2306/aquaoracle-app)
 
@@ -16,16 +16,18 @@ thuỷ sản và đẩy dữ liệu lên Supabase.
 | Độ đục | cảm biến độ đục analog |
 | Nguồn | ắc quy 12V, có thể ghép pin mặt trời |
 
-Toàn bộ đặt trong hộp nhựa chống nước, ống PVC dẫn nước qua buồng đo.
+Tất cả được đặt trong hộp nhựa chống nước, nước được dẫn qua buồng đo bằng ống
+PVC.
 
 ## Cách hoạt động
 
-1. Khởi động, khởi tạo 4 cảm biến và kết nối Wi-Fi.
-2. Cứ khoảng 5 phút: đọc analog nhiều lần rồi lấy trung bình để lọc nhiễu.
-3. So sánh với ngưỡng an toàn, bật cảnh báo nếu vượt.
-4. Đóng gói JSON, POST lên Supabase REST API qua HTTPS, kiểm tra kết quả gửi.
+1. Khi khởi động: khởi tạo 4 cảm biến và kết nối Wi-Fi.
+2. Khoảng 5 phút một lần: đọc analog nhiều lần rồi lấy trung bình để lọc nhiễu.
+3. So với ngưỡng an toàn, nếu vượt thì bật cảnh báo.
+4. Đóng gói thành JSON, POST lên Supabase REST API qua HTTPS và kiểm tra xem
+   gửi có thành công không.
 
-Mỗi bản ghi mang `esp_id` để ứng dụng phân biệt được nhiều thiết bị trong cùng
+Mỗi bản ghi có `esp_id` để ứng dụng phân biệt được nhiều thiết bị trong cùng
 một tài khoản.
 
 ## Cấu hình
@@ -36,17 +38,17 @@ cp secrets.example.h secrets.h   # rồi điền SSID, mật khẩu Wi-Fi và kh
 
 `secrets.h` nằm trong `.gitignore`.
 
-Mở `Esp32_Program_AquaOracle.ino` bằng Arduino IDE, chọn board ESP32 Dev Module,
-nạp chương trình.
+Mở `Esp32_Program_AquaOracle.ino` bằng Arduino IDE, chọn board ESP32 Dev Module
+rồi nạp chương trình.
 
 ## Ghi chú bảo mật
 
-Các bản trước của repo này có hardcode SSID và mật khẩu Wi-Fi cùng Supabase anon
-key ngay trong file `.ino`, và đã bị đẩy lên repo public. Lịch sử git đã được
-viết lại bằng `git filter-repo` để gỡ bỏ, mật khẩu mạng đã được đổi, và Supabase
-project cũ đã bị xoá. Cấu hình hiện tách hẳn sang `secrets.h`.
+Các bản trước của repo này hardcode SSID, mật khẩu Wi-Fi và Supabase anon key
+ngay trong file `.ino`, và đã bị đẩy lên repo public. Tôi đã viết lại lịch sử
+git bằng `git filter-repo` để gỡ ra, đổi mật khẩu Wi-Fi và xoá Supabase project
+cũ. Giờ cấu hình nằm riêng trong `secrets.h`.
 
 ## Trạng thái
 
-Dự án thi đã kết thúc. Mã nguồn giữ nguyên để tham chiếu; muốn chạy lại cần một
-Supabase project mới.
+Cuộc thi đã kết thúc. Mã nguồn để nguyên để tham khảo; muốn chạy lại thì cần
+tạo một Supabase project mới.
