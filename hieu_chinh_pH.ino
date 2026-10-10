@@ -124,53 +124,25 @@ void manualCalibrationMode() {
   Serial.println("-> Cập nhật vào VOLTAGE_PH7 hoặc VOLTAGE_PH4\n");
 }
 
-// Thay hàm readPH() cũ bằng hàm mới
-// TRONG SETUP(), THÊM DÒNG:
-// calibratePH();
-
-// TRONG readAllSensors(), THAY ĐỔI:
-// float temp = readTemperature();  // Đọc nhiệt độ trước
-// data.ph = readPH_Calibrated(temp);  // Truyền nhiệt độ vào
+// Cách dùng trong chương trình chính: thay readPH() cũ bằng hàm ở trên.
+// Trong setup(), thêm:
+//   calibratePH();
+// Trong readAllSensors(), đọc nhiệt độ trước rồi truyền vào:
+//   float temp = readTemperature();
+//   data.ph = readPH_Calibrated(temp);
 
 /*
- * ============================================================================
- * HƯỚNG DẪN SỬ DỤNG CHI TIẾT
- * ============================================================================
- * 
- * BƯỚC 1: CHUẨN BỊ
- * - Chuẩn bị 2 cốc dung dịch chuẩn pH 4.0 và pH 7.0 (đi kèm sản phẩm)
- * - Chuẩn bị nước cất để rửa probe
- * - Giấy thấm mềm để lau khô probe
- * 
- * BƯỚC 2: HIỆU CHỈNH ĐIỂM THỨ NHẤT (pH 7.0)
- * 1. Upload code với chế độ manualCalibrationMode() trong loop
- * 2. Ngâm probe vào dung dịch pH 7.0
- * 3. Đợi 2 phút cho ổn định
- * 4. Quan sát Serial Monitor, ghi lại giá trị điện áp trung bình
- * 5. Cập nhật giá trị vào biến VOLTAGE_PH7
- * 
- * BƯỚC 3: HIỆU CHỈNH ĐIỂM THỨ HAI (pH 4.0)
- * 1. Rửa probe bằng nước cất, lau khô nhẹ
- * 2. Ngâm probe vào dung dịch pH 4.0
- * 3. Đợi 2 phút cho ổn định
- * 4. Ghi lại giá trị điện áp trung bình
- * 5. Cập nhật giá trị vào biến VOLTAGE_PH4
- * 
- * BƯỚC 4: HOÀN TẤT
- * 1. Upload lại code với 2 giá trị điện áp mới
- * 2. Gọi calibratePH() trong setup()
- * 3. Kiểm tra độ chính xác bằng dung dịch chuẩn
- * 
- * LƯU Ý BẢO QUẢN:
- * - Luôn ngâm probe trong dung dịch bảo quản (pH 4.0) khi không dùng
- * - KHÔNG để probe khô, sẽ làm hỏng màng thủy tinh
- * - Hiệu chỉnh lại mỗi 1-2 tháng hoặc khi phát hiện sai số
- * - Thay probe sau 6-12 tháng tùy tần suất sử dụng
- * 
- * KIỂM TRA SAI SỐ:
- * - Sai số cho phép: ±0.1 pH @ 25°C (theo datasheet)
- * - Nếu sai số > ±0.2 pH -> cần hiệu chỉnh lại
- * - Nếu vẫn sai -> kiểm tra probe (có thể hỏng)
- * 
- * ============================================================================
+ * Ghi chú thêm:
+ *   - Dung dịch chuẩn pH 4.0 và 7.0 thường đi kèm cảm biến. Chuẩn bị thêm
+ *     nước cất để rửa probe và giấy mềm để lau.
+ *   - Lúc dò điện áp thì gọi manualCalibrationMode() trong loop(). Mỗi dung
+ *     dịch đợi khoảng 2 phút rồi lấy điện áp trung bình trên Serial Monitor.
+ *   - Có hai giá trị rồi thì nạp lại code, gọi calibratePH() trong setup()
+ *     và thử lại bằng dung dịch chuẩn để xem sai số.
+ *   - Khi không dùng, ngâm probe trong dung dịch bảo quản (pH 4.0). Đừng để
+ *     probe bị khô, sẽ hỏng màng thuỷ tinh.
+ *   - Theo datasheet, sai số cho phép là ±0.1 pH ở 25°C. Lệch quá ±0.2 pH
+ *     thì hiệu chỉnh lại, vẫn lệch thì có thể probe đã hỏng.
+ *   - Nên hiệu chỉnh lại sau 1-2 tháng. Probe thường dùng được 6-12 tháng
+ *     tuỳ tần suất đo.
  */

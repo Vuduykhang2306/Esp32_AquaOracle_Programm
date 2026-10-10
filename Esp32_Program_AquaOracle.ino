@@ -3,7 +3,7 @@
  *
  * Phần cứng: ESP32-WROOM-32E, board Beark, module relay 4 kênh
  * Cảm biến:  DS18B20 (nhiệt độ), pH, TDS, độ đục
- * Chu kỳ:    5 phút đo một lần
+ * Chu kỳ:    theo SEND_INTERVAL, hiện để 2 phút đo một lần
  *
  * Relay dùng để cắt nguồn cảm biến giữa các lần đo: chỉ bật đúng lúc đọc
  * rồi tắt ngay, không để cảm biến ăn điện liên tục.
@@ -20,7 +20,7 @@
 #include "secrets.h"
 
 // Cấu hình Supabase
-// SUPABASE_URL va SUPABASE_ANON_KEY cung nam trong secrets.h.
+// SUPABASE_URL và SUPABASE_ANON_KEY cũng nằm trong secrets.h.
 const char* ESP_ID = "esp01";
 
 // Chân cảm biến, theo sơ đồ board Beark
@@ -37,7 +37,7 @@ const char* ESP_ID = "esp01";
 #define RELAY_4 15               // GPIO15 -> Relay 4 (IN4)
 
 // Relay nào cấp nguồn cho cảm biến nào
-// Từ sơ đồ, các relay kết nối VCC cảm biến qua Beark Board:
+// Theo sơ đồ, relay nối vào VCC của cảm biến qua board Beark:
 #define RELAY_TEMP       RELAY_1    // Relay 1 -> VCC CB Nhiệt độ
 #define RELAY_PH         RELAY_2    // Relay 2 -> VCC CB pH
 #define RELAY_TDS        RELAY_3    // Relay 3 -> VCC CB TDS
@@ -82,7 +82,7 @@ void setup() {
   // Khởi tạo GPIO
   initGPIO();
   
-  // TẮT tất cả relay (TẮT tất cả cảm biến)
+  // Tắt hết relay, tức là tắt hết cảm biến
   disableAllSensors();
   
   // Khởi tạo DS18B20
@@ -103,11 +103,11 @@ void loop() {
     connectWiFi();
   }
   
-  // Chu kỳ đo 5 phút
+  // Mỗi SEND_INTERVAL đo một lần
   if (millis() - lastSendTime >= SEND_INTERVAL || lastSendTime == 0) {
     Serial.println("BẮT ĐẦU CHU KỲ ĐỌC CẢM BIẾN");
-    
-    // Đọc tất cả cảm biến (relay tự động BẬT/TẮT trong hàm)
+
+    // Đọc hết cảm biến (relay được bật/tắt bên trong hàm)
     SensorData data = readAllSensors();
     
     // Hiển thị kết quả
@@ -118,7 +118,7 @@ void loop() {
     
     lastSendTime = millis();
     
-    Serial.printf("⏰ Chu kỳ tiếp theo: 2 phút\n");
+    Serial.printf("Chu kỳ tiếp theo: 2 phút\n");
     Serial.println("Tất cả cảm biến đã TẮT (đèn relay TẮT)\n");
   }
   
@@ -133,15 +133,15 @@ void initGPIO() {
   pinMode(PIN_PH, INPUT);
   pinMode(PIN_TDS, INPUT);
   pinMode(PIN_TURBIDITY, INPUT);
-  // PIN_TEMP (GPIO32) tự động cấu hình bởi thư viện OneWire
-  
-  // Cấu hình Relay Output (mặc định HIGH = TẮT cho relay active LOW)
+  // PIN_TEMP (GPIO32) do thư viện OneWire tự cấu hình
+
+  // Chân relay là output. Relay kích mức thấp nên HIGH là tắt.
   pinMode(RELAY_1, OUTPUT);
   pinMode(RELAY_2, OUTPUT);
   pinMode(RELAY_3, OUTPUT);
   pinMode(RELAY_4, OUTPUT);
   
-  // TẮT tất cả relay ngay từ đầu
+  // Tắt hết relay ngay từ đầu
   digitalWrite(RELAY_1, HIGH);
   digitalWrite(RELAY_2, HIGH);
   digitalWrite(RELAY_3, HIGH);
@@ -152,10 +152,10 @@ void initGPIO() {
 
 // Tắt hết cảm biến
 void disableAllSensors() {
-  digitalWrite(RELAY_TEMP, HIGH);       // TẮT CB Nhiệt độ
-  digitalWrite(RELAY_PH, HIGH);         // TẮT CB pH
-  digitalWrite(RELAY_TDS, HIGH);        // TẮT CB TDS
-  digitalWrite(RELAY_TURBIDITY, HIGH);  // TẮT CB Turbidity
+  digitalWrite(RELAY_TEMP, HIGH);       // tắt CB nhiệt độ
+  digitalWrite(RELAY_PH, HIGH);         // tắt CB pH
+  digitalWrite(RELAY_TDS, HIGH);        // tắt CB TDS
+  digitalWrite(RELAY_TURBIDITY, HIGH);  // tắt CB độ đục
   
   Serial.println("Đã TẮT tất cả cảm biến (đèn relay TẮT)");
 }
@@ -189,43 +189,43 @@ void connectWiFi() {
 SensorData readAllSensors() {
   SensorData data;
   
-  // 1. ĐỌC NHIỆT ĐỘ DS18B20
+  // 1. Nhiệt độ (DS18B20)
   Serial.println("\n[1/4] Đang đọc NHIỆT ĐỘ...");
-  digitalWrite(RELAY_TEMP, LOW);  // BẬT relay (đèn sáng)
+  digitalWrite(RELAY_TEMP, LOW);  // bật relay (đèn sáng)
   Serial.println("Relay 1 (GPIO17) BẬT");
   delay(SENSOR_WARMUP_TIME);
   data.temperature = readTemperature();
-  digitalWrite(RELAY_TEMP, HIGH); // TẮT relay (đèn tắt)
+  digitalWrite(RELAY_TEMP, HIGH); // tắt relay (đèn tắt)
   Serial.println("Relay 1 (GPIO17) TẮT");
   delay(200);
   
-  // 2. ĐỌC pH
+  // 2. pH
   Serial.println("\n[2/4] Đang đọc pH...");
-  digitalWrite(RELAY_PH, LOW);    // BẬT relay (đèn sáng)
+  digitalWrite(RELAY_PH, LOW);    // bật relay (đèn sáng)
   Serial.println("Relay 2 (GPIO16) BẬT");
   delay(SENSOR_WARMUP_TIME);
   data.ph = readPH();
-  digitalWrite(RELAY_PH, HIGH);   // TẮT relay (đèn tắt)
+  digitalWrite(RELAY_PH, HIGH);   // tắt relay (đèn tắt)
   Serial.println("Relay 2 (GPIO16) TẮT");
   delay(200);
   
-  // 3. ĐỌC TDS
+  // 3. TDS
   Serial.println("\n[3/4] Đang đọc TDS...");
-  digitalWrite(RELAY_TDS, LOW);   // BẬT relay (đèn sáng)
+  digitalWrite(RELAY_TDS, LOW);   // bật relay (đèn sáng)
   Serial.println("Relay 3 (GPIO0) BẬT");
   delay(SENSOR_WARMUP_TIME);
   data.tds = readTDS();
-  digitalWrite(RELAY_TDS, HIGH);  // TẮT relay (đèn tắt)
+  digitalWrite(RELAY_TDS, HIGH);  // tắt relay (đèn tắt)
   Serial.println("Relay 3 (GPIO0) TẮT");
   delay(200);
   
-  // 4. ĐỌC ĐỘ ĐỤC
+  // 4. Độ đục
   Serial.println("\n[4/4] Đang đọc ĐỘ ĐỤC...");
-  digitalWrite(RELAY_TURBIDITY, LOW);  // BẬT relay (đèn sáng)
+  digitalWrite(RELAY_TURBIDITY, LOW);  // bật relay (đèn sáng)
   Serial.println("Relay 4 (GPIO15) BẬT");
   delay(SENSOR_WARMUP_TIME);
   data.turbidity = readTurbidity();
-  digitalWrite(RELAY_TURBIDITY, HIGH); // TẮT relay (đèn tắt)
+  digitalWrite(RELAY_TURBIDITY, HIGH); // tắt relay (đèn tắt)
   Serial.println("Relay 4 (GPIO15) TẮT");
   delay(200);
   
@@ -404,7 +404,7 @@ void sendToSupabase(SensorData data) {
  *   GPIO0    relay 3  ->  VCC cảm biến TDS
  *   GPIO15   relay 4  ->  VCC cảm biến độ đục
  *
- * Module relay này tích cực mức thấp: LOW là BẬT, HIGH là TẮT. Lúc chờ thì cả
- * 4 đèn phải tắt, lúc đo chỉ sáng đúng một đèn. Mỗi chu kỳ 5 phút chỉ bật cảm
- * biến vài giây nên gần như toàn bộ thời gian cảm biến không có điện.
+ * Module relay này kích mức thấp: LOW là bật, HIGH là tắt. Lúc chờ thì cả
+ * 4 đèn phải tắt, lúc đo chỉ sáng đúng một đèn. Mỗi chu kỳ chỉ bật từng cảm
+ * biến trong vài giây, nên gần như suốt thời gian còn lại cảm biến không có điện.
  */
