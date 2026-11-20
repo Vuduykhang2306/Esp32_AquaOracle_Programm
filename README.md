@@ -1,55 +1,68 @@
-# AquaOracle: firmware ESP32
+# AquaOracle: ESP32 firmware
 
-Firmware cho node cảm biến của hệ thống AquaOracle: đo chất lượng nước ao nuôi
-thuỷ sản rồi đẩy dữ liệu lên Supabase.
+[![Build](https://github.com/Vuduykhang2306/Esp32_AquaOracle_Programm/actions/workflows/build.yml/badge.svg)](https://github.com/Vuduykhang2306/Esp32_AquaOracle_Programm/actions/workflows/build.yml)
 
-Ứng dụng di động đọc dữ liệu này: [aquaoracle-app](https://github.com/Vuduykhang2306/aquaoracle-app)
+Firmware for the AquaOracle sensor node. It measures the water in an
+aquaculture pond and pushes the readings to Supabase.
 
-## Phần cứng
+The mobile app that reads this data:
+[aquaoracle-app](https://github.com/Vuduykhang2306/aquaoracle-app)
 
-| Thành phần | Model |
+## Hardware
+
+| Part | Model |
 |---|---|
-| Vi điều khiển | ESP32-WROOM |
-| Nhiệt độ | DS18B20 (1-Wire) |
+| Microcontroller | ESP32-WROOM |
+| Temperature | DS18B20 (1-Wire) |
 | pH | Analog pH Meter Kit V2 |
-| TDS | cảm biến TDS analog |
-| Độ đục | cảm biến độ đục analog |
-| Nguồn | ắc quy 12V, có thể ghép pin mặt trời |
+| TDS | analog TDS sensor |
+| Turbidity | analog turbidity sensor |
+| Power | 12V battery, can be paired with a solar panel |
 
-Tất cả được đặt trong hộp nhựa chống nước, nước được dẫn qua buồng đo bằng ống
-PVC.
+Everything sits in a waterproof plastic box. Pond water runs through a
+measuring chamber in PVC pipe.
 
-## Cách hoạt động
+## How it works
 
-1. Khi khởi động: khởi tạo 4 cảm biến và kết nối Wi-Fi.
-2. Cứ 2 phút một lần (`SEND_INTERVAL`): đọc analog nhiều lần rồi lấy trung bình
-   để lọc nhiễu.
-3. So với ngưỡng an toàn, nếu vượt thì bật cảnh báo.
-4. Đóng gói thành JSON, POST lên Supabase REST API qua HTTPS và kiểm tra xem
-   gửi có thành công không.
+1. On boot: set up the four sensors and connect to Wi-Fi.
+2. Every 2 minutes (`SEND_INTERVAL`): read each analog sensor several times and
+   average the readings to cut noise.
+3. Compare against safe thresholds and raise an alert if one is crossed.
+4. Pack the values into JSON, POST them to the Supabase REST API over HTTPS,
+   and check that the write went through.
 
-Mỗi bản ghi có `esp_id` để ứng dụng phân biệt được nhiều thiết bị trong cùng
-một tài khoản.
+Each record carries an `esp_id`, so the app can tell several devices apart on
+one account.
 
-## Cấu hình
+`hieu_chinh_pH.ino` holds the two-point pH calibration (pH 7.0 and pH 4.0
+buffers). The default voltages in it are placeholders and have to be measured
+again on the probe you actually use.
+
+## Setup
 
 ```bash
-cp secrets.example.h secrets.h   # rồi điền SSID, mật khẩu Wi-Fi và khoá Supabase
+cp secrets.example.h secrets.h   # then fill in Wi-Fi SSID, password and Supabase key
 ```
 
-`secrets.h` nằm trong `.gitignore`.
+`secrets.h` is in `.gitignore`.
 
-Mở `Esp32_Program_AquaOracle.ino` bằng Arduino IDE, chọn board ESP32 Dev Module
-rồi nạp chương trình.
+Open `Esp32_Program_AquaOracle.ino` in the Arduino IDE, pick the ESP32 Dev
+Module board and upload.
 
-## Ghi chú bảo mật
+CI compiles the sketch on every push with `secrets.example.h` standing in for
+`secrets.h`, so a broken build shows up without real credentials.
 
-Các bản trước của repo này hardcode SSID, mật khẩu Wi-Fi và Supabase anon key
-ngay trong file `.ino`, và đã bị đẩy lên repo public. Tôi đã viết lại lịch sử
-git bằng `git filter-repo` để gỡ ra, đổi mật khẩu Wi-Fi và xoá Supabase project
-cũ. Giờ cấu hình nằm riêng trong `secrets.h`.
+## Security note
 
-## Trạng thái
+Earlier versions of this repo had the Wi-Fi SSID, the Wi-Fi password and the
+Supabase anon key hardcoded in the `.ino` file, and that was pushed to a public
+repo. I rewrote the git history with `git filter-repo` to remove them, changed
+the Wi-Fi password and deleted the old Supabase project. Config now lives on
+its own in `secrets.h`.
 
-Cuộc thi đã kết thúc. Mã nguồn để nguyên để tham khảo; muốn chạy lại thì cần
-tạo một Supabase project mới.
+## Status
+
+The contest is over. The code stays up for reference. To run it again you need
+a new Supabase project.
+
+Tiếng Việt: [README.vi.md](README.vi.md)
